@@ -1,59 +1,52 @@
-# Luna design roadmap
+# Luna product and design roadmap
 
-Luna should stay calm, simple, and useful. New features should deepen the night-sky experience without turning the page into a dense astronomy dashboard.
+Luna is a field atlas for the living Moon: one calm instrument that connects a selected date to phase, local timing, observation guidance, lunar geography, and noteworthy sky events.
 
-## Shipped — Interaction foundation
+## Shipped — Interactive field atlas
 
-- Make every calendar date selectable.
-- Show moon phase, illumination, lunar age, and simple observing guidance.
-- Expand eclipse and meteor-shower dates into useful event details.
-- Use the same detail panel from both the calendar and event list.
-- Support keyboard controls, Escape-to-close, mobile bottom-sheet behavior, and nearby-date navigation.
+- A cinematic “Moon now” hero with a 29-day scrubber and eight clickable phase stops.
+- A responsive month calendar where every date updates one persistent observation inspector.
+- Local moonrise, moonset, nautical-darkness timing, and viewing guidance for five cities or optional device location.
+- Calendar filters for phases, eclipses, and meteor showers.
+- A local “Plan this night” state without an account or external service.
+- Six interactive lunar field notes with image hotspots, facts, and next/previous navigation.
+- A filterable year event index that jumps directly to the relevant calendar date.
+- Keyboard focus states, reduced-motion support, touch-friendly mobile layouts, and a refreshed social card.
 
-## Current release — Local sky lens
+## Competitive position
 
-The highest-value next addition is now implemented without a runtime data service.
+- NASA’s tools lead with authoritative imagery, missions, and surface exploration.
+- Timeanddate leads with exhaustive tables and location-specific timing.
+- Planetarium tools lead with simulated sky navigation.
+- Consumer moon calendars lead with quick phase lookup and event articles.
+- Luna’s distinctive position is the connection between these jobs: date → phase → local sky clock → what to notice → where to learn, inside one editorial experience.
 
-- Choose from five cities or optionally use the browser’s approximate location.
-- Calculate local moonrise, moonset, nautical dusk, and viewing guidance on the device.
-- Translate sky times into the selected location’s time zone.
-- Adjust viewing guidance for bright moonlight, meteor showers, and eclipses.
-- Keep location optional, avoid a runtime external service, and label calculations as estimates.
+## Next — Observation planning
 
-## Next — Better discovery
+- Export one selected night as an `.ics` calendar event.
+- Add a printable red-light observation sheet with the selected date, timing, and targets.
+- Add a compact year navigator and direct next-new-moon / next-full-moon shortcuts.
+- Persist saved nights locally with a small review rail.
+- Add optional orientation guidance for northern- and southern-hemisphere views.
 
-- Add filters for moon phases, eclipses, meteor showers, and planetary events.
-- Add a year-at-a-glance event timeline beneath the monthly calendar.
-- Let users jump directly to the next new moon, full moon, or cosmic event.
-- Add a compact month picker while preserving the current previous/next controls.
-- Use subtle color or symbols to distinguish event types without adding visual noise.
+## Later — Deeper lunar knowledge
 
-## Later — Personal planning
-
-- Let users save events locally without requiring an account.
-- Offer “Add to calendar” downloads for selected events.
-- Add a share link or event card for a chosen date.
-- Add optional reminders only after the basic save flow is useful.
-- Keep notification permission separate and user-controlled.
+- Expand the atlas into thematic paths: first binocular targets, Apollo sites, ray systems, maria, and the moving terminator.
+- Add a guided “first five nights” learning sequence that responds to the actual phase.
+- Add source notes to each field entry and expose calculation assumptions in a compact methods panel.
+- Add shareable, date-specific field cards while keeping core UI text code-native.
 
 ## Optional — Clear-sky conditions
 
-- Add cloud cover, precipitation, and visibility only after approving a weather provider.
-- Keep the astronomy calculations useful when weather data is unavailable.
-- Explain which information leaves the browser before requesting access.
-
-## Learning layer
-
-- Add short, plain-language phase explanations.
-- Explain how to safely view solar eclipses.
-- Add constellation and direction hints for meteor showers.
-- Introduce a small glossary that opens in context rather than a separate reference page.
+- Add cloud cover, transparency, and seeing only after a provider and privacy boundary are approved.
+- Keep all astronomy calculations and field notes useful when weather data is unavailable.
+- Explain exactly what location information leaves the browser before requesting access.
 
 ## Design principles
 
-- Progressive disclosure: show the date and phase first, deeper information on demand.
-- Calm hierarchy: parchment, charcoal, and orange remain the core palette.
-- One interaction pattern: use the same detail panel everywhere.
-- Mobile-first touch targets with complete keyboard support.
-- Honest data: identify estimates and make location-dependent visibility clear.
-- No account, database, or external service until it clearly improves the core experience.
+- One selected date drives every surface.
+- Editorial calm over dashboard density.
+- Progressive disclosure: phase and timing first, context and science second.
+- No account, database, or runtime data provider until it clearly improves observation planning.
+- Estimates and location-dependent visibility stay clearly labeled.
+- Every primary interaction must work with mouse, touch, and keyboard.

@@ -21,17 +21,17 @@ const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? (
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
-  title: 'Luna — A Simple Lunar Calendar',
-  description: 'Follow moon phases, meteor showers, eclipses and the cosmic moments worth looking up for.',
+  title: 'Luna — A Field Atlas for the Living Moon',
+  description: 'Explore lunar phases, local moonrise and moonset times, observation guidance, surface landmarks, eclipses, and meteor showers in one interactive field atlas.',
   openGraph: {
-    title: 'Luna — A Simple Lunar Calendar',
-    description: 'Follow the moon. Notice the sky.',
+    title: 'Luna — A Field Atlas for the Living Moon',
+    description: 'Know the Moon before you look up.',
     images: [{ url: '/og.png', width: 1728, height: 904, alt: 'Luna lunar calendar' }],
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Luna — A Simple Lunar Calendar',
-    description: 'Follow the moon. Notice the sky.',
+    title: 'Luna — A Field Atlas for the Living Moon',
+    description: 'Know the Moon before you look up.',
     images: ['/og.png'],
   },
 };
