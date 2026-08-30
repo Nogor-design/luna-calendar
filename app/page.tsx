@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 
 const SYNODIC_MONTH = 29.53058867;
 const KNOWN_NEW_MOON = Date.UTC(2000, 0, 6, 18, 14);
@@ -25,36 +25,61 @@ const majorPhaseGlyphs: Record<string, string> = {
   'Last Quarter': '◑',
 };
 
-const cosmicEvents = [
+type CosmicEvent = {
+  date: string;
+  name: string;
+  type: string;
+  note: string;
+  bestTime: string;
+  lookFor: string;
+  visibility: string;
+};
+
+const cosmicEvents: CosmicEvent[] = [
   {
     date: '2026-08-28',
     name: 'Partial lunar eclipse',
     type: 'Eclipse',
     note: 'Visible across the Americas, Europe and Africa.',
+    bestTime: 'Late evening Aug 27 into early Aug 28',
+    lookFor: 'Earth’s shadow covering most of the lunar disk.',
+    visibility: 'No equipment is needed. Find a clear view of the Moon.',
   },
   {
     date: '2026-10-21',
     name: 'Orionids peak',
     type: 'Meteor shower',
     note: 'Best viewed after midnight from a dark location.',
+    bestTime: 'After midnight through dawn',
+    lookFor: 'Fast, faint streaks radiating from Orion.',
+    visibility: 'Allow 20 minutes for your eyes to adjust to the dark.',
   },
   {
     date: '2026-11-16',
     name: 'Leonids peak',
     type: 'Meteor shower',
     note: 'Fast meteors radiating from the constellation Leo.',
+    bestTime: 'Late night through dawn',
+    lookFor: 'Swift streaks that sometimes leave glowing trails.',
+    visibility: 'Face away from bright lights and scan a wide area of sky.',
   },
   {
     date: '2026-12-13',
     name: 'Geminids peak',
     type: 'Meteor shower',
     note: 'One of the strongest annual meteor showers.',
+    bestTime: 'Around 2 a.m. local time',
+    lookFor: 'Bright, colorful meteors appearing across the whole sky.',
+    visibility: 'A reclining chair and a dark, open horizon are ideal.',
   },
   {
     date: '2027-02-06',
     name: 'Annular solar eclipse',
     type: 'Eclipse',
     note: 'The Moon leaves a bright ring around the Sun.',
+    bestTime: 'Timing depends on your location',
+    lookFor: 'A bright ring of sunlight around the Moon’s silhouette.',
+    visibility: 'Use certified eclipse glasses for every direct view of the Sun.',
   },
 ];
 
@@ -64,6 +89,20 @@ function moonPhase(date: Date) {
   const index = Math.round(fraction * 8) % 8;
   const illumination = Math.round((1 - Math.cos(2 * Math.PI * fraction)) * 50);
   return { fraction, index, illumination, name: phaseNames[index] };
+}
+
+function phaseGuidance(phaseIndex: number) {
+  const guidance = [
+    'The darkest lunar night—excellent for stars and deep-sky viewing.',
+    'Look low in the west shortly after sunset for the young crescent.',
+    'Visible from afternoon into the first half of the night.',
+    'An easy evening Moon with more surface detail each night.',
+    'Rises near sunset and stays visible through most of the night.',
+    'Best seen late at night and into the morning hours.',
+    'Rises around midnight and remains visible through the morning.',
+    'A slim morning crescent, best spotted before sunrise.',
+  ];
+  return guidance[phaseIndex];
 }
 
 function dateKey(date: Date) {
@@ -108,14 +147,51 @@ function nextMajorPhases(from: Date) {
 export default function Home() {
   const [today] = useState(() => new Date());
   const [viewDate, setViewDate] = useState(() => new Date());
+  const [selectedDate, setSelectedDate] = useState<Date | null>(null);
+  const dialogRef = useRef<HTMLDialogElement>(null);
+  const detailPanelRef = useRef<HTMLDivElement>(null);
   const monthDays = useMemo(() => makeMonthDays(viewDate), [viewDate]);
   const todayPhase = moonPhase(today);
   const upcomingPhases = useMemo(() => nextMajorPhases(today), [today]);
   const futureEvents = cosmicEvents.filter((event) => event.date >= dateKey(today));
   const upcomingEvents = (futureEvents.length ? futureEvents : cosmicEvents.slice(-4)).slice(0, 4);
+  const selectedPhase = selectedDate ? moonPhase(selectedDate) : null;
+  const selectedEvent = selectedDate
+    ? cosmicEvents.find((event) => event.date === dateKey(selectedDate))
+    : undefined;
+
+  useEffect(() => {
+    const dialog = dialogRef.current;
+    if (!dialog) return;
+    if (selectedDate && !dialog.open) {
+      dialog.showModal();
+      detailPanelRef.current?.scrollTo({ top: 0 });
+    }
+    if (!selectedDate && dialog.open) dialog.close();
+  }, [selectedDate]);
+
+  useEffect(() => {
+    if (!selectedDate) return;
+    const closeOnEscape = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') setSelectedDate(null);
+    };
+    document.addEventListener('keydown', closeOnEscape);
+    return () => document.removeEventListener('keydown', closeOnEscape);
+  }, [selectedDate]);
 
   const moveMonth = (amount: number) => {
     setViewDate((current) => new Date(current.getFullYear(), current.getMonth() + amount, 1));
+  };
+
+  const openDateDetails = (date: Date) => {
+    setSelectedDate(new Date(date.getFullYear(), date.getMonth(), date.getDate(), 12));
+  };
+
+  const shiftSelectedDate = (amount: number) => {
+    if (!selectedDate) return;
+    const next = new Date(selectedDate.getFullYear(), selectedDate.getMonth(), selectedDate.getDate() + amount, 12);
+    setSelectedDate(next);
+    setViewDate(new Date(next.getFullYear(), next.getMonth(), 1));
   };
 
   return (
@@ -154,7 +230,7 @@ export default function Home() {
       </section>
 
       <section className="phase-strip" aria-label="Upcoming moon phases">
-        {upcomingPhases.map((phase, index) => (
+        {upcomingPhases.map((phase) => (
           <article key={`${phase.name}-${phase.date.toISOString()}`}>
             <span className="mini-moon" aria-hidden="true">{majorPhaseGlyphs[phase.name]}</span>
             <div>
@@ -191,13 +267,20 @@ export default function Home() {
               const isToday = dateKey(date) === dateKey(today);
               const isMajor = phase.index % 2 === 0;
               return (
-                <div className={`day${isToday ? ' is-today' : ''}${event ? ' has-event' : ''}`} key={dateKey(date)}>
+                <button
+                  type="button"
+                  className={`day${isToday ? ' is-today' : ''}${event ? ' has-event' : ''}`}
+                  key={dateKey(date)}
+                  onClick={() => openDateDetails(date)}
+                  aria-haspopup="dialog"
+                  aria-label={`${date.toLocaleDateString(undefined, { month: 'long', day: 'numeric', year: 'numeric' })}: ${phase.name}, ${phase.illumination}% illuminated${event ? `, ${event.name}` : ''}`}
+                >
                   <span className="day-number">{date.getDate()}</span>
-                  <span className={`day-moon${isMajor ? ' major' : ''}`} aria-label={phase.name} title={phase.name}>
+                  <span className={`day-moon${isMajor ? ' major' : ''}`} aria-hidden="true" title={phase.name}>
                     {phaseGlyphs[phase.index]}
                   </span>
-                  {event && <span className="event-dot" title={event.name} aria-label={event.name} />}
-                </div>
+                  {event ? <span className="event-chip">Explore event</span> : <span className="day-hint">View</span>}
+                </button>
               );
             })}
           </div>
@@ -222,7 +305,14 @@ export default function Home() {
           {upcomingEvents.map((event, index) => {
             const eventDate = new Date(`${event.date}T12:00:00`);
             return (
-              <article className="event-row" key={event.date}>
+              <button
+                type="button"
+                className="event-row"
+                key={event.date}
+                onClick={() => openDateDetails(eventDate)}
+                aria-haspopup="dialog"
+                aria-label={`View ${event.name} details for ${eventDate.toLocaleDateString()}`}
+              >
                 <span className="event-index">{String(index + 1).padStart(2, '0')}</span>
                 <time dateTime={event.date}>
                   <strong>{eventDate.toLocaleDateString(undefined, { day: '2-digit' })}</strong>
@@ -234,11 +324,76 @@ export default function Home() {
                   <p>{event.note}</p>
                 </div>
                 <span className="event-arrow" aria-hidden="true">↗</span>
-              </article>
+              </button>
             );
           })}
         </div>
       </section>
+
+      <dialog
+        className="detail-dialog"
+        ref={dialogRef}
+        onClose={() => setSelectedDate(null)}
+        onCancel={(event) => {
+          event.preventDefault();
+          setSelectedDate(null);
+        }}
+        onClick={(event) => {
+          if (event.target === event.currentTarget) setSelectedDate(null);
+        }}
+        aria-labelledby="detail-title"
+      >
+        {selectedDate && selectedPhase ? (
+          <div className="detail-panel" ref={detailPanelRef}>
+            <header className="detail-header">
+              <div>
+                <span className="eyebrow">Night sky details</span>
+                <p>{selectedDate.toLocaleDateString(undefined, { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' })}</p>
+              </div>
+              <button className="dialog-close" type="button" onClick={() => setSelectedDate(null)} aria-label="Close details">×</button>
+            </header>
+
+            <div className="detail-moon-block">
+              <span className="detail-moon" aria-hidden="true">{phaseGlyphs[selectedPhase.index]}</span>
+              <div>
+                <span className="detail-kicker">Moon phase</span>
+                <h2 id="detail-title">{selectedPhase.name}</h2>
+                <p>{phaseGuidance(selectedPhase.index)}</p>
+              </div>
+            </div>
+
+            <div className="detail-stats" aria-label="Moon statistics">
+              <div><strong>{selectedPhase.illumination}%</strong><span>Illuminated</span></div>
+              <div><strong>{Math.round(selectedPhase.fraction * SYNODIC_MONTH)}</strong><span>Days into cycle</span></div>
+              <div><strong>{selectedPhase.fraction < 0.5 ? 'Waxing' : 'Waning'}</strong><span>Direction</span></div>
+            </div>
+
+            {selectedEvent ? (
+              <section className="selected-event" aria-label="Cosmic event details">
+                <span className="event-type">{selectedEvent.type}</span>
+                <h3>{selectedEvent.name}</h3>
+                <p className="event-lede">{selectedEvent.note}</p>
+                <dl>
+                  <div><dt>Best time</dt><dd>{selectedEvent.bestTime}</dd></div>
+                  <div><dt>Look for</dt><dd>{selectedEvent.lookFor}</dd></div>
+                  <div><dt>Viewing note</dt><dd>{selectedEvent.visibility}</dd></div>
+                </dl>
+              </section>
+            ) : (
+              <section className="quiet-night">
+                <span className="event-type">A quiet lunar night</span>
+                <h3>No major event is listed for this date.</h3>
+                <p>The Moon still changes a little every night. Step outside, let your eyes adjust, and notice where it sits in the sky.</p>
+              </section>
+            )}
+
+            <nav className="detail-nav" aria-label="Browse nearby dates">
+              <button type="button" onClick={() => shiftSelectedDate(-1)}><span aria-hidden="true">←</span> Previous night</button>
+              <button type="button" onClick={() => shiftSelectedDate(1)}>Next night <span aria-hidden="true">→</span></button>
+            </nav>
+          </div>
+        ) : null}
+      </dialog>
 
       <footer>
         <a className="brand footer-brand" href="#top"><span className="brand-mark" aria-hidden="true">◐</span>Luna</a>
