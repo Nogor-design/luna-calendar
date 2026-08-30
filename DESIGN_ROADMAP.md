@@ -2,7 +2,7 @@
 
 Luna should stay calm, simple, and useful. New features should deepen the night-sky experience without turning the page into a dense astronomy dashboard.
 
-## Current release — Interaction foundation
+## Shipped — Interaction foundation
 
 - Make every calendar date selectable.
 - Show moon phase, illumination, lunar age, and simple observing guidance.
@@ -10,17 +10,17 @@ Luna should stay calm, simple, and useful. New features should deepen the night-
 - Use the same detail panel from both the calendar and event list.
 - Support keyboard controls, Escape-to-close, mobile bottom-sheet behavior, and nearby-date navigation.
 
-## Next — Local sky lens
+## Current release — Local sky lens
 
-Highest-value next addition.
+The highest-value next addition is now implemented without a runtime data service.
 
-- Add a simple location selector with a clear default.
-- Show local moonrise and moonset times.
-- Translate event dates into the viewer’s time zone.
-- Add a small “good viewing window” indicator based on moonlight and event timing.
-- Keep all location data optional and explain when a value is approximate.
+- Choose from five cities or optionally use the browser’s approximate location.
+- Calculate local moonrise, moonset, nautical dusk, and viewing guidance on the device.
+- Translate sky times into the selected location’s time zone.
+- Adjust viewing guidance for bright moonlight, meteor showers, and eclipses.
+- Keep location optional, avoid a runtime external service, and label calculations as estimates.
 
-## Then — Better discovery
+## Next — Better discovery
 
 - Add filters for moon phases, eclipses, meteor showers, and planetary events.
 - Add a year-at-a-glance event timeline beneath the monthly calendar.
@@ -35,6 +35,12 @@ Highest-value next addition.
 - Add a share link or event card for a chosen date.
 - Add optional reminders only after the basic save flow is useful.
 - Keep notification permission separate and user-controlled.
+
+## Optional — Clear-sky conditions
+
+- Add cloud cover, precipitation, and visibility only after approving a weather provider.
+- Keep the astronomy calculations useful when weather data is unavailable.
+- Explain which information leaves the browser before requesting access.
 
 ## Learning layer
 

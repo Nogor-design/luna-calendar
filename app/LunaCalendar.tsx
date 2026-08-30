@@ -1,6 +1,12 @@
 'use client';
 
 import { useEffect, useMemo, useRef, useState } from 'react';
+import {
+  coordinatesLabel,
+  getSkyDetails,
+  observerLocations,
+  type ObserverLocation,
+} from './sky';
 
 const SYNODIC_MONTH = 29.53058867;
 const KNOWN_NEW_MOON = Date.UTC(2000, 0, 6, 18, 14);
@@ -158,6 +164,9 @@ export default function LunaCalendar({ initialDateKey }: { initialDateKey: strin
   const [today, setToday] = useState(initialDate);
   const [viewDate, setViewDate] = useState(initialDate);
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
+  const [observer, setObserver] = useState<ObserverLocation>(observerLocations[0]);
+  const [locationMessage, setLocationMessage] = useState('');
+  const [isLocating, setIsLocating] = useState(false);
   const dialogRef = useRef<HTMLDialogElement>(null);
   const detailPanelRef = useRef<HTMLDivElement>(null);
   const monthDays = useMemo(() => makeMonthDays(viewDate), [viewDate]);
@@ -169,6 +178,16 @@ export default function LunaCalendar({ initialDateKey }: { initialDateKey: strin
   const selectedEvent = selectedDate
     ? cosmicEvents.find((event) => event.date === dateKey(selectedDate))
     : undefined;
+  const tonightSky = useMemo(
+    () => getSkyDetails(today, observer, todayPhase.illumination),
+    [observer, today, todayPhase.illumination],
+  );
+  const selectedSky = useMemo(
+    () => selectedDate
+      ? getSkyDetails(selectedDate, observer, moonPhase(selectedDate).illumination, selectedEvent?.type)
+      : null,
+    [observer, selectedDate, selectedEvent?.type],
+  );
 
   useEffect(() => {
     const timer = window.setTimeout(() => {
@@ -213,6 +232,41 @@ export default function LunaCalendar({ initialDateKey }: { initialDateKey: strin
     setViewDate(new Date(Date.UTC(next.getUTCFullYear(), next.getUTCMonth(), 1, 12)));
   };
 
+  const chooseLocation = (id: string) => {
+    const nextLocation = observerLocations.find((location) => location.id === id);
+    if (!nextLocation) return;
+    setObserver(nextLocation);
+    setLocationMessage('');
+  };
+
+  const useDeviceLocation = () => {
+    if (!navigator.geolocation) {
+      setLocationMessage('Location is not available in this browser.');
+      return;
+    }
+
+    setIsLocating(true);
+    setLocationMessage('');
+    navigator.geolocation.getCurrentPosition(
+      ({ coords }) => {
+        setObserver({
+          id: 'device',
+          label: 'My location',
+          latitude: coords.latitude,
+          longitude: coords.longitude,
+          timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone || 'UTC',
+        });
+        setIsLocating(false);
+        setLocationMessage('Location ready. It stays in this browser.');
+      },
+      () => {
+        setIsLocating(false);
+        setLocationMessage('Location permission was not granted. Choose a city instead.');
+      },
+      { enableHighAccuracy: false, maximumAge: 3_600_000, timeout: 10_000 },
+    );
+  };
+
   return (
     <main>
       <header className="site-header">
@@ -220,7 +274,10 @@ export default function LunaCalendar({ initialDateKey }: { initialDateKey: strin
           <span className="brand-mark" aria-hidden="true">◐</span>
           <span>Luna</span>
         </a>
-        <a className="quiet-link" href="#events">Cosmic events <span aria-hidden="true">↓</span></a>
+        <nav className="header-links" aria-label="Page sections">
+          <a className="quiet-link" href="#your-sky">Your sky</a>
+          <a className="quiet-link" href="#events">Events <span aria-hidden="true">↓</span></a>
+        </nav>
       </header>
 
       <section className="hero" id="top">
@@ -260,10 +317,50 @@ export default function LunaCalendar({ initialDateKey }: { initialDateKey: strin
         ))}
       </section>
 
+      <section className="sky-lens" id="your-sky">
+        <div className="sky-lens-copy">
+          <div>
+            <span className="section-number">01</span>
+            <p className="eyebrow">Your sky tonight</p>
+            <h2>Look up from<br />where you are.</h2>
+          </div>
+          <p>Moon times are calculated on your device. Choose a city or share your approximate location—nothing is sent to a weather service.</p>
+        </div>
+
+        <div className="location-controls">
+          <label htmlFor="observer-location">Viewing from</label>
+          <div className="location-actions">
+            <select
+              id="observer-location"
+              value={observer.id}
+              onChange={(event) => chooseLocation(event.target.value)}
+            >
+              {observer.id === 'device' ? <option value="device">My location</option> : null}
+              {observerLocations.map((location) => (
+                <option key={location.id} value={location.id}>{location.label}</option>
+              ))}
+            </select>
+            <button type="button" onClick={useDeviceLocation} disabled={isLocating}>
+              {isLocating ? 'Finding you…' : 'Use my location'}
+            </button>
+          </div>
+          <p className="location-meta" aria-live="polite">
+            {locationMessage || `${coordinatesLabel(observer)} · ${observer.timeZone.replaceAll('_', ' ')}`}
+          </p>
+        </div>
+
+        <div className="sky-times" aria-label={`Tonight's sky times for ${observer.label}`}>
+          <div><span>Moonrise</span><strong>{tonightSky.moonrise}</strong></div>
+          <div><span>Moonset</span><strong>{tonightSky.moonset}</strong></div>
+          <div><span>Dark skies</span><strong>{tonightSky.darknessBegins}</strong></div>
+        </div>
+        <p className="sky-guidance"><span aria-hidden="true">✦</span>{tonightSky.guidance}</p>
+      </section>
+
       <section className="calendar-section" id="calendar">
         <div className="section-heading">
           <div>
-            <span className="section-number">01</span>
+            <span className="section-number">02</span>
             <p className="eyebrow">Lunar calendar</p>
             <h2>{viewDate.toLocaleDateString('en-US', { month: 'long', year: 'numeric', timeZone: 'UTC' })}</h2>
           </div>
@@ -313,7 +410,7 @@ export default function LunaCalendar({ initialDateKey }: { initialDateKey: strin
       <section className="events-section" id="events">
         <div className="section-heading events-heading">
           <div>
-            <span className="section-number">02</span>
+            <span className="section-number">03</span>
             <p className="eyebrow">Cosmic events</p>
             <h2>Worth looking up for</h2>
           </div>
@@ -386,6 +483,24 @@ export default function LunaCalendar({ initialDateKey }: { initialDateKey: strin
               <div><strong>{Math.round(selectedPhase.fraction * SYNODIC_MONTH)}</strong><span>Days into cycle</span></div>
               <div><strong>{selectedPhase.fraction < 0.5 ? 'Waxing' : 'Waning'}</strong><span>Direction</span></div>
             </div>
+
+            {selectedSky ? (
+              <section className="detail-sky" aria-label={`Local sky times for ${observer.label}`}>
+                <header>
+                  <div>
+                    <span className="detail-kicker">Your sky · {observer.label}</span>
+                    <h3>When to step outside</h3>
+                  </div>
+                  <a href="#your-sky" onClick={() => setSelectedDate(null)}>Change location</a>
+                </header>
+                <div className="detail-sky-times">
+                  <div><span>Moonrise</span><strong>{selectedSky.moonrise}</strong></div>
+                  <div><span>Moonset</span><strong>{selectedSky.moonset}</strong></div>
+                  <div><span>Dark skies</span><strong>{selectedSky.darknessBegins}</strong></div>
+                </div>
+                <p>{selectedSky.guidance}</p>
+              </section>
+            ) : null}
 
             {selectedEvent ? (
               <section className="selected-event" aria-label="Cosmic event details">

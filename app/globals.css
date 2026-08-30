@@ -19,6 +19,7 @@ a { color: inherit; text-decoration: none; }
 .brand { align-items: center; display: inline-flex; font-size: 20px; font-weight: 600; gap: 10px; letter-spacing: -.04em; }
 .brand-mark { color: var(--orange); font-size: 27px; line-height: 1; transform: rotate(-30deg); }
 .quiet-link { border-bottom: 1px solid currentColor; font-size: 13px; padding-bottom: 3px; }
+.header-links { align-items: center; display: flex; gap: 24px; }
 
 .hero { margin: 0 auto; max-width: 1440px; min-height: 650px; overflow: hidden; padding: 72px clamp(24px, 5vw, 76px) 54px; position: relative; }
 .hero::before { background-image: radial-gradient(rgba(24,24,18,.38) .7px, transparent .7px); background-size: 22px 22px; content: ''; inset: 0 0 0 48%; mask-image: linear-gradient(90deg, transparent, #000 40%); opacity: .2; pointer-events: none; position: absolute; }
@@ -49,6 +50,30 @@ h1 { font-family: var(--font-display), Georgia, serif; font-size: clamp(64px, 7.
 .phase-strip strong { font-family: var(--font-display), Georgia, serif; font-size: 19px; }
 .phase-strip div span { color: var(--muted); font-size: 11px; margin-top: 3px; text-transform: uppercase; }
 .mini-moon { font-family: Arial, sans-serif; font-size: 33px; }
+
+.sky-lens { border-bottom: 1px solid var(--line); margin: 0 auto; max-width: 1440px; padding: 110px clamp(24px, 5vw, 76px); }
+.sky-lens-copy { align-items: end; display: grid; gap: clamp(36px, 7vw, 110px); grid-template-columns: 1.05fr .95fr; margin-bottom: 48px; }
+.sky-lens-copy > div { position: relative; }
+.sky-lens .eyebrow { color: var(--orange); margin: 0 0 9px; }
+.sky-lens h2 { font-family: var(--font-display), Georgia, serif; font-size: clamp(44px, 5vw, 68px); font-weight: 400; letter-spacing: -.045em; line-height: .92; margin: 0; }
+.sky-lens-copy > p { color: var(--muted); font-size: 13px; line-height: 1.7; margin: 0; max-width: 460px; }
+.location-controls { border-bottom: 1px solid var(--line); border-top: 1px solid var(--line); display: grid; gap: 18px 28px; grid-template-columns: 120px 1fr; padding: 22px 0; }
+.location-controls > label { align-self: center; font-size: 10px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; }
+.location-actions { display: grid; gap: 12px; grid-template-columns: minmax(180px, 1fr) auto; }
+.location-actions select, .location-actions button { background: transparent; border: 1px solid var(--line); border-radius: 0; color: var(--ink); min-height: 46px; }
+.location-actions select { appearance: none; background-image: linear-gradient(45deg, transparent 50%, var(--ink) 50%), linear-gradient(135deg, var(--ink) 50%, transparent 50%); background-position: calc(100% - 17px) 20px, calc(100% - 12px) 20px; background-repeat: no-repeat; background-size: 5px 5px; cursor: pointer; padding: 0 42px 0 14px; }
+.location-actions button { cursor: pointer; font-size: 10px; font-weight: 700; padding: 0 18px; text-transform: uppercase; }
+.location-actions button:hover, .location-actions button:focus-visible, .location-actions select:focus-visible { background-color: var(--paper-deep); outline: 2px solid var(--orange); outline-offset: -2px; }
+.location-actions button:disabled { cursor: wait; opacity: .55; }
+.location-meta { color: var(--muted); font-size: 10px; grid-column: 2; margin: -8px 0 0; }
+.sky-times { background: var(--ink); color: var(--paper); display: grid; grid-template-columns: repeat(3, 1fr); }
+.sky-times div { border-right: 1px solid rgba(243,240,230,.2); padding: 28px; }
+.sky-times div:last-child { border-right: 0; }
+.sky-times span, .sky-times strong { display: block; }
+.sky-times span { color: var(--orange); font-size: 9px; font-weight: 700; letter-spacing: .11em; margin-bottom: 7px; text-transform: uppercase; }
+.sky-times strong { font-family: var(--font-display), Georgia, serif; font-size: clamp(27px, 3vw, 39px); font-weight: 400; }
+.sky-guidance { align-items: flex-start; border-bottom: 1px solid var(--line); display: flex; font-family: var(--font-display), Georgia, serif; font-size: 19px; gap: 15px; line-height: 1.45; margin: 0; padding: 24px 0; }
+.sky-guidance span { color: var(--orange); font-family: Arial, sans-serif; font-size: 14px; margin-top: 6px; }
 
 .calendar-section, .events-section { margin: 0 auto; max-width: 1440px; padding: 110px clamp(24px, 5vw, 76px); }
 .section-heading { align-items: end; display: flex; justify-content: space-between; margin-bottom: 44px; }
@@ -123,6 +148,17 @@ body:has(.detail-dialog[open]) { overflow: hidden; }
 .detail-stats strong, .detail-stats span { display: block; }
 .detail-stats strong { font-family: var(--font-display), Georgia, serif; font-size: 25px; font-weight: 600; }
 .detail-stats span { color: var(--muted); font-size: 8px; font-weight: 700; letter-spacing: .07em; margin-top: 4px; text-transform: uppercase; }
+.detail-sky { border-bottom: 1px solid var(--line); margin-bottom: 34px; padding-bottom: 26px; }
+.detail-sky header { align-items: flex-start; display: flex; justify-content: space-between; }
+.detail-sky h3 { font-family: var(--font-display), Georgia, serif; font-size: 27px; font-weight: 400; margin: 7px 0 20px; }
+.detail-sky header a { border-bottom: 1px solid var(--ink); font-size: 8px; font-weight: 700; padding-bottom: 4px; text-transform: uppercase; }
+.detail-sky-times { display: grid; grid-template-columns: repeat(3, 1fr); }
+.detail-sky-times div { border-left: 1px solid var(--line); padding: 0 12px; }
+.detail-sky-times div:first-child { border-left: 0; padding-left: 0; }
+.detail-sky-times span, .detail-sky-times strong { display: block; }
+.detail-sky-times span { color: var(--muted); font-size: 8px; font-weight: 700; letter-spacing: .06em; margin-bottom: 5px; text-transform: uppercase; }
+.detail-sky-times strong { font-family: var(--font-display), Georgia, serif; font-size: 18px; font-weight: 600; }
+.detail-sky > p { color: var(--muted); font-size: 11px; line-height: 1.55; margin: 18px 0 0; }
 .selected-event { background: var(--ink); color: var(--paper); padding: 28px; }
 .selected-event h3, .quiet-night h3 { font-family: var(--font-display), Georgia, serif; font-size: 32px; font-weight: 400; line-height: 1; margin: 7px 0 12px; }
 .event-lede, .quiet-night p { color: #aaa79d; font-size: 12px; line-height: 1.6; }
@@ -151,6 +187,7 @@ footer p { color: var(--muted); font-family: var(--font-display), Georgia, serif
   .phase-strip { grid-template-columns: repeat(2, 1fr); }
   .phase-strip article:nth-child(3) { border-left: 1px solid var(--line); }
   .phase-strip article:nth-child(-n+2) { border-bottom: 1px solid var(--line); }
+  .sky-lens-copy { align-items: start; grid-template-columns: 1fr; }
   .section-heading { align-items: flex-start; flex-direction: column; gap: 24px; }
   .events-heading > p { max-width: 520px; }
   .day { height: 86px; }
@@ -166,7 +203,14 @@ footer p { color: var(--muted); font-family: var(--font-display), Georgia, serif
   .moon-orbit { width: 100%; }
   .phase-strip { grid-template-columns: 1fr; }
   .phase-strip article, .phase-strip article:nth-child(3) { border-bottom: 1px solid var(--line); border-left: 1px solid var(--line); }
-  .calendar-section, .events-section { padding-bottom: 76px; padding-top: 90px; }
+  .sky-lens, .calendar-section, .events-section { padding-bottom: 76px; padding-top: 90px; }
+  .location-controls { grid-template-columns: 1fr; }
+  .location-actions { grid-template-columns: 1fr; }
+  .location-meta { grid-column: 1; margin-top: -5px; }
+  .sky-times { grid-template-columns: 1fr; }
+  .sky-times div { border-bottom: 1px solid rgba(243,240,230,.2); border-right: 0; padding: 21px 24px; }
+  .sky-times div:last-child { border-bottom: 0; }
+  .sky-guidance { font-size: 17px; }
   .section-heading h2 { font-size: 43px; }
   .weekday-row span { font-size: 8px; padding: 10px 4px; text-align: center; }
   .day { height: 65px; }
@@ -188,6 +232,7 @@ footer p { color: var(--muted); font-family: var(--font-display), Georgia, serif
   .detail-moon { font-size: 76px; height: 90px; width: 90px; }
   .detail-moon-block h2 { font-size: 34px; }
   .detail-stats strong { font-size: 20px; }
+  .detail-sky-times strong { font-size: 16px; }
   .selected-event, .quiet-night { padding: 23px; }
 }
 
